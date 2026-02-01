@@ -1,0 +1,100 @@
+{
+  "tracks": [
+    {
+      "title": "What is your name",
+      "artist": "English with Ms. Olga",
+      "file": "audio/song01.mp3",
+      "image": "cover.jpg"
+    },
+    {
+      "title": "Good morning – Good evening",
+      "artist": "English with Ms. Olga",
+      "file": "audio/song02.mp3",
+      "image": "cover.jpg"
+    },
+    {
+      "title": "Building blocks",
+      "artist": "English with Ms. Olga",
+      "file": "audio/song03.mp3",
+      "image": "cover.jpg"
+    },
+    {
+      "title": "That is English alphabet",
+      "artist": "English with Ms. Olga",
+      "file": "audio/song04.mp3",
+      "image": "cover.jpg"
+    },
+    {
+      "title": "Clap your hands",
+      "artist": "English with Ms. Olga",
+      "file": "audio/song05.mp3",
+      "image": "cover.jpg"
+    },
+    {
+      "title": "On the tiptoes",
+      "artist": "English with Ms. Olga",
+      "file": "audio/song06.mp3",
+      "image": "cover.jpg"
+    },
+    {
+      "title": "Head and shoulders",
+      "artist": "English with Ms. Olga",
+      "file": "audio/song07.mp3",
+      "image": "cover.jpg"
+    },
+    {
+      "title": "Hands up – Hands down",
+      "artist": "English with Ms. Olga",
+      "file": "audio/song08.mp3",
+      "image": "cover.jpg"
+    },
+    {
+      "title": "Step-Step – Clap-Clap",
+      "artist": "English with Ms. Olga",
+      "file": "audio/song09.mp3",
+      "image": "cover.jpg"
+    },
+    {
+      "title": "Put Your Finger On Your Head",
+      "artist": "English with Ms. Olga",
+      "file": "audio/song10.mp3",
+      "image": "cover.jpg"
+    },
+    {
+      "title": "My Head, My Shoulders",
+      "artist": "English with Ms. Olga",
+      "file": "audio/song11.mp3",
+      "image": "cover.jpg"
+    },
+    {
+      "title": "My eyes can see",
+      "artist": "English with Ms. Olga",
+      "file": "audio/song12.mp3",
+      "image": "cover.jpg"
+    },
+    {
+      "title": "Shoes Have Tongues",
+      "artist": "English with Ms. Olga",
+      "file": "audio/song13.mp3",
+      "image": "cover.jpg"
+    },
+    {
+      "title": "See Them Walk, Walk, Walk",
+      "artist": "English with Ms. Olga",
+      "file": "audio/song14.mp3",
+      "image": "cover.jpg"
+    },
+    {
+      "title": "Welcome, Little Travellers",
+      "artist": "English with Ms. Olga",
+      "file": "audio/song15.mp3",
+      "image": "cover.jpg"
+    },
+    {
+      "title": "Little kitten likes the milk",
+      "artist": "English with Ms. Olga",
+      "file": "audio/song16.mp3",
+      "image": "cover.jpg"
+    }
+  ]
+}
