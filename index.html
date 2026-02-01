@@ -3,105 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio Player Editor for Genially</title>
+    <title>Audio Player Master</title>
     <style>
-        :root { --primary-gradient: linear-gradient(135deg, #7b2ff7 0%, #3f0a8e 100%); --accent: #ffffff; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #2d3436; }
-        .container { display: grid; grid-template-columns: 350px 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; }
-        .panel { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-        h1, h2 { margin-top: 0; font-size: 1.4rem; color: #1e272e; }
+        :root { --p1: #7b2ff7; --p2: #3f0a8e; --txt: #ffffff; }
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: transparent; }
         
-        /* Editor UI */
-        .field { margin-bottom: 15px; }
-        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #636e72; }
-        input { width: 100%; padding: 10px; border: 1px solid #dfe6e9; border-radius: 8px; box-sizing: border-box; }
-        input[type="color"] { height: 40px; cursor: pointer; padding: 2px; }
-        button#generateBtn { background: #7b2ff7; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button#generateBtn:hover { background: #5f10e0; }
-        textarea { width: 100%; height: 120px; margin-top: 15px; border-radius: 8px; border: 1px solid #dfe6e9; background: #fafafa; font-family: monospace; font-size: 11px; padding: 10px; box-sizing: border-box; }
-
-        /* Real Player Preview Styles */
-        .preview-area { display: flex; align-items: center; justify-content: center; background: #e2e8f0; border-radius: 15px; min-height: 400px; }
-        .player-card { 
-            width: 450px; height: 160px; background: var(--primary-gradient); 
-            border-radius: 24px; position: relative; padding: 20px; 
-            color: white; display: flex; align-items: center; overflow: hidden;
-            box-shadow: 0 15px 35px rgba(123, 47, 247, 0.3);
+        /* Стили Редактора (скрываются в режиме виджета) */
+        #editor-ui { 
+            background: #f0f2f5; padding: 30px; min-height: 100vh; 
+            display: flex; flex-direction: column; align-items: center; 
         }
-        .album-wrapper { position: relative; z-index: 2; flex-shrink: 0; }
+        .config-card { 
+            background: white; padding: 25px; border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 500px; margin-bottom: 30px;
+        }
+        .field { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; color: #444; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        textarea { width: 100%; height: 80px; margin-top: 10px; border-radius: 8px; border: 1px solid #ccc; font-family: monospace; font-size: 12px; }
+
+        /* СТИЛИ ПЛЕЕРА (Референс Drake/Scorpion) */
+        .player-container {
+            width: 450px; height: 160px; 
+            background: linear-gradient(135deg, var(--p1) 0%, var(--p2) 100%);
+            border-radius: 24px; display: flex; align-items: center; 
+            padding: 20px; color: var(--txt); position: relative; 
+            overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
         .album-art { 
-            width: 110px; height: 110px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.3);
-            object-fit: cover; animation: rotate 12s linear infinite paused;
+            width: 100px; height: 100px; border-radius: 50%; 
+            border: 4px solid rgba(255,255,255,0.2); object-fit: cover;
+            animation: rotate 10s linear infinite paused; flex-shrink: 0;
         }
         .playing .album-art { animation-play-state: running; }
+        .info { margin-left: 20px; flex-grow: 1; z-index: 2; }
+        .info h3 { margin: 0; font-size: 18px; }
+        .info p { margin: 5px 0; font-size: 14px; opacity: 0.8; }
         
-        .player-content { flex-grow: 1; margin-left: 20px; z-index: 2; }
-        .track-info h3 { margin: 0; font-size: 18px; letter-spacing: 0.5px; }
-        .track-info p { margin: 4px 0; font-size: 13px; opacity: 0.8; }
+        .controls { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+        .btn { background: none; border: none; color: white; cursor: pointer; font-size: 20px; transition: 0.2s; }
+        .btn:hover { transform: scale(1.1); }
+        .btn-play { background: white; color: var(--p1); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
         
-        .progress-bar { width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 12px 0; cursor: pointer; position: relative; }
-        .progress-fill { height: 100%; background: var(--accent); width: 0%; border-radius: 2px; transition: width 0.1s; }
-        
-        .controls { display: flex; align-items: center; gap: 15px; }
-        .btn { background: none; border: none; color: white; cursor: pointer; font-size: 18px; padding: 0; transition: 0.2s; opacity: 0.9; }
-        .btn:hover { opacity: 1; transform: scale(1.1); }
-        .btn-play { background: white; color: #7b2ff7; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-        
-        /* Visualizer */
-        .vis { position: absolute; bottom: 0; left: 0; display: flex; align-items: flex-end; gap: 2px; padding: 10px; opacity: 0.2; }
-        .bar { width: 6px; background: white; height: 10px; border-radius: 1px; animation: bounce 0.6s infinite alternate paused; }
+        .progress-box { width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin-top: 10px; cursor: pointer; }
+        .progress-bar { height: 100%; background: var(--txt); width: 0%; border-radius: 2px; }
+
+        /* Визуализатор */
+        .viz { position: absolute; bottom: 0; left: 0; display: flex; gap: 2px; padding: 10px; opacity: 0.2; align-items: flex-end; }
+        .bar { width: 6px; background: white; height: 10px; animation: bounce 0.5s infinite alternate paused; }
         .playing .bar { animation-play-state: running; }
 
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes bounce { from { height: 5px; } to { height: 30px; } }
+        @keyframes bounce { from { height: 4px; } to { height: 30px; } }
+        
+        /* Режим виджета: скрыть всё лишнее */
+        body.widget-mode #editor-ui { display: none; }
+        body.widget-mode { display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="panel">
-        <h2>Редактор плеера</h2>
+<div id="editor-ui">
+    <h1>Настройка плеера</h1>
+    <div class="config-card">
         <div class="field">
-            <label>Цвет фона (Начальный)</label>
-            <input type="color" id="color1" value="#7b2ff7" oninput="updateStyle()">
+            <label>Цвет 1 (Градиент)</label>
+            <input type="color" id="c1" value="#7b2ff7" oninput="liveUpdate()">
         </div>
         <div class="field">
-            <label>Цвет фона (Конечный)</label>
-            <input type="color" id="color2" value="#3f0a8e" oninput="updateStyle()">
+            <label>Цвет 2 (Градиент)</label>
+            <input type="color" id="c2" value="#3f0a8e" oninput="liveUpdate()">
         </div>
         <div class="field">
-            <label>URL Плейлиста (JSON)</label>
-            <input type="text" id="jsonUrl" value="https://raw.githubusercontent.com/EnglishTeacherOlgaKutsepalova/player/main/playlist.json">
+            <label>Ссылка на JSON плейлиста</label>
+            <input type="text" id="jsonInput" value="https://raw.githubusercontent.com/EnglishTeacherOlgaKutsepalova/player/main/playlist.json" oninput="liveUpdate()">
         </div>
-        <button id="generateBtn" onclick="generateEmbed()">Сгенерировать код</button>
-        <textarea id="output" readonly placeholder="Здесь будет ваш код..."></textarea>
+        <label>Код для вставки в Genially:</label>
+        <textarea id="resCode" readonly></textarea>
     </div>
+    
+    <h2>Предпросмотр:</h2>
+    <div id="preview-box"></div>
+</div>
 
-    <div class="preview-area">
-        <div class="player-card" id="player">
-            <div class="vis">
-                <div class="bar" style="animation-delay: 0s"></div>
-                <div class="bar" style="animation-delay: 0.2s"></div>
-                <div class="bar" style="animation-delay: 0.1s"></div>
-                <div class="bar" style="animation-delay: 0.4s"></div>
+<div id="player-anchor">
+    <div class="player-container" id="plBody">
+        <div class="viz">
+            <div class="bar" style="animation-delay:0s"></div>
+            <div class="bar" style="animation-delay:0.2s"></div>
+            <div class="bar" style="animation-delay:0.4s"></div>
+            <div class="bar" style="animation-delay:0.1s"></div>
+        </div>
+        <img src="cover.jpg" id="pCover" class="album-art">
+        <div class="info">
+            <h3 id="pTitle">Загрузка...</h3>
+            <p id="pArtist">...</p>
+            <div class="progress-box" onclick="seek(event)">
+                <div class="progress-bar" id="pBar"></div>
             </div>
-            <div class="album-wrapper">
-                <img src="https://raw.githubusercontent.com/EnglishTeacherOlgaKutsepalova/player/main/cover.jpg" id="art" class="album-art">
-            </div>
-            <div class="player-content">
-                <div class="track-info">
-                    <h3 id="title">Название песни</h3>
-                    <p id="artist">Исполнитель</p>
-                </div>
-                <div class="progress-bar" id="progressRoot">
-                    <div class="progress-fill" id="fill"></div>
-                </div>
-                <div class="controls">
-                    <button class="btn" onclick="prev()">⏮</button>
-                    <button class="btn btn-play" onclick="toggle()">▶</button>
-                    <button class="btn" onclick="next()">⏭</button>
-                    <button class="btn" id="shuf" onclick="toggleShuf()" style="font-size: 14px; opacity: 0.5;">🔀</button>
-                </div>
+            <div class="controls">
+                <button class="btn" onclick="prev()">⏮</button>
+                <button class="btn btn-play" onclick="togglePlay()" id="pPlay">▶</button>
+                <button class="btn" onclick="next()">⏭</button>
+                <button class="btn" onclick="toggleShuf()" id="pShuf" style="opacity:0.5; font-size: 14px;">🔀</button>
             </div>
         </div>
     </div>
@@ -109,72 +113,91 @@
 
 <script>
     let tracks = [];
-    let cur = 0;
-    let isPlay = false;
-    let isShuf = false;
+    let current = 0;
+    let isPlaying = false;
+    let isShuffle = false;
     const audio = new Audio();
-    const base = "https://raw.githubusercontent.com/EnglishTeacherOlgaKutsepalova/player/main/";
+    const params = new URLSearchParams(window.location.search);
 
-    // Инициализация
-    fetch(document.getElementById('jsonUrl').value)
-        .then(r => r.json())
-        .then(d => { 
-            tracks = d.tracks; 
-            load(0); 
-        });
-
-    function load(idx) {
-        const t = tracks[idx];
-        audio.src = base + t.file;
-        document.getElementById('title').innerText = t.title;
-        document.getElementById('artist').innerText = t.artist;
-        document.getElementById('art').src = base + t.image;
+    // 1. ОПРЕДЕЛЕНИЕ РЕЖИМА
+    if (params.has('view')) {
+        document.body.classList.add('widget-mode');
+        // Применяем цвета из URL
+        if(params.has('c1')) document.documentElement.style.setProperty('--p1', '#' + params.get('c1'));
+        if(params.has('c2')) document.documentElement.style.setProperty('--p2', '#' + params.get('c2'));
     }
 
-    function toggle() {
-        if(isPlay) { audio.pause(); } else { audio.play(); }
-        isPlay = !isPlay;
-        document.querySelector('.btn-play').innerText = isPlay ? '⏸' : '▶';
-        document.getElementById('player').classList.toggle('playing', isPlay);
+    // 2. ЛОГИКА ПЛЕЕРА
+    async function loadPlaylist(url) {
+        try {
+            const r = await fetch(url);
+            const d = await r.json();
+            tracks = d.tracks;
+            renderTrack(0);
+        } catch(e) { console.error("Ошибка JSON"); }
+    }
+
+    function renderTrack(i) {
+        const t = tracks[i];
+        const githubBase = "https://raw.githubusercontent.com/EnglishTeacherOlgaKutsepalova/player/main/";
+        audio.src = githubBase + t.file;
+        document.getElementById('pTitle').innerText = t.title;
+        document.getElementById('pArtist').innerText = t.artist;
+        document.getElementById('pCover').src = githubBase + t.image;
+    }
+
+    function togglePlay() {
+        if(isPlaying) audio.pause(); else audio.play();
+        isPlaying = !isPlaying;
+        document.getElementById('pPlay').innerText = isPlaying ? '⏸' : '▶';
+        document.getElementById('plBody').classList.toggle('playing', isPlaying);
     }
 
     function next() {
-        cur = isShuf ? Math.floor(Math.random() * tracks.length) : (cur + 1) % tracks.length;
-        load(cur); if(isPlay) audio.play();
+        current = isShuffle ? Math.floor(Math.random()*tracks.length) : (current + 1) % tracks.length;
+        renderTrack(current); if(isPlaying) audio.play();
     }
 
     function prev() {
-        cur = (cur - 1 + tracks.length) % tracks.length;
-        load(cur); if(isPlay) audio.play();
+        current = (current - 1 + tracks.length) % tracks.length;
+        renderTrack(current); if(isPlaying) audio.play();
     }
 
     function toggleShuf() {
-        isShuf = !isShuf;
-        document.getElementById('shuf').style.opacity = isShuf ? "1" : "0.5";
-    }
-
-    function updateStyle() {
-        const c1 = document.getElementById('color1').value;
-        const c2 = document.getElementById('color2').value;
-        document.getElementById('player').style.background = `linear-gradient(135deg, ${c1} 0%, ${c2} 100%)`;
+        isShuffle = !isShuffle;
+        document.getElementById('pShuf').style.opacity = isShuffle ? "1" : "0.5";
     }
 
     audio.ontimeupdate = () => {
         const p = (audio.currentTime / audio.duration) * 100 || 0;
-        document.getElementById('fill').style.width = p + '%';
+        document.getElementById('pBar').style.width = p + '%';
     };
+    audio.onended = () => next();
 
-    function generateEmbed() {
-        const c1 = document.getElementById('color1').value;
-        const c2 = document.getElementById('color2').value;
-        const json = document.getElementById('jsonUrl').value;
+    // 3. ЛОГИКА РЕДАКТОРА
+    function liveUpdate() {
+        const color1 = document.getElementById('c1').value;
+        const color2 = document.getElementById('c2').value;
+        const json = document.getElementById('jsonInput').value;
         
-        // Здесь мы генерируем iFrame, который ссылается на твою же страницу, но с параметрами
-        const finalCode = `<iframe src="https://englishteacherolgakutsepalova.github.io/player/index.html?c1=${c1.replace('#','')}&c2=${c2.replace('#','')}" width="480" height="200" frameborder="0" scrolling="no" style="overflow:hidden; background:transparent;"></iframe>`;
+        // Мгновенно обновляем превью
+        document.documentElement.style.setProperty('--p1', color1);
+        document.documentElement.style.setProperty('--p2', color2);
         
-        document.getElementById('output').value = finalCode;
-        alert("Код готов! Скопируйте его в Genially.");
+        // Генерируем код
+        const cleanC1 = color1.replace('#','');
+        const cleanC2 = color2.replace('#','');
+        const myUrl = window.location.href.split('?')[0];
+        const iframe = `<iframe src="${myUrl}?view=widget&c1=${cleanC1}&c2=${cleanC2}" width="460" height="180" frameborder="0" scrolling="no" style="background:transparent;"></iframe>`;
+        
+        document.getElementById('resCode').value = iframe;
     }
+
+    // Запуск
+    const startJson = params.get('json') || document.getElementById('jsonInput').value;
+    loadPlaylist(startJson);
+    if(!params.has('view')) liveUpdate();
+
 </script>
 </body>
 </html>
