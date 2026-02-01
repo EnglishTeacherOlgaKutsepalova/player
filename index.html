@@ -16,7 +16,7 @@
         }
         .container {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1 1fr;
             gap: 20px;
         }
         @media (max-width: 768px) {
@@ -35,6 +35,7 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: 400px;
         }
         h1 {
             margin-top: 0;
@@ -115,7 +116,6 @@
             margin-right: 15px;
             border-radius: 4px;
             object-fit: cover;
-            background: #333;
         }
         .info {
             flex: 1;
@@ -151,9 +151,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-        .controls button:hover {
-            background: rgba(255,255,255,0.1);
         }
         .progress {
             flex: 1;
@@ -203,8 +200,47 @@
             padding: 5px 10px;
             border-radius: 4px;
         }
-        .playlist:hover {
+        .playlist-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .playlist-content {
+            background: var(--primary-color);
+            color: var(--secondary-color);
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            padding: 20px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .playlist-item {
+            padding: 10px;
+            border-bottom: 1px solid #444;
+            cursor: pointer;
+        }
+        .playlist-item:hover {
             background: rgba(255,255,255,0.1);
+        }
+        .playlist-item.active {
+            background: rgba(74, 108, 247, 0.3);
+            font-weight: 600;
+        }
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: var(--secondary-color);
+            font-size: 24px;
+            cursor: pointer;
         }
         .random-toggle {
             display: flex;
@@ -253,48 +289,6 @@
         .hidden {
             display: none !important;
         }
-        .playlist-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        .playlist-content {
-            background: var(--primary-color);
-            color: var(--secondary-color);
-            width: 80%;
-            max-width: 500px;
-            border-radius: 8px;
-            padding: 20px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        .playlist-item {
-            padding: 10px;
-            border-bottom: 1px solid #444;
-            cursor: pointer;
-        }
-        .playlist-item:hover {
-            background: rgba(255,255,255,0.1);
-        }
-        .playlist-item.active {
-            background: rgba(74, 108, 247, 0.3);
-            font-weight: 600;
-        }
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            color: var(--secondary-color);
-            font-size: 24px;
-            cursor: pointer;
-        }
         .time-display {
             display: flex;
             justify-content: space-between;
@@ -340,6 +334,7 @@
     </div>
 
     <script>
+        // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             updatePreview();
             setupEventListeners();
@@ -361,6 +356,7 @@
             const secondary = document.getElementById('secondaryColor').value;
             const playlist = document.getElementById('playlistUrl').value;
             
+            // Генерируем HTML для превью
             const playerHtml = `
                 <div class="audioplayer" style="--primary-color: ${primary}; --secondary-color: ${secondary};">
                     <div class="player-container">
@@ -409,53 +405,58 @@
                         </div>
                     </div>
                 </div>
-                <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const playBtn = document.querySelector('.play');
-                        const prevBtn = document.querySelector('.prev');
-                        const nextBtn = document.querySelector('.next');
-                        const playlistBtn = document.querySelector('.playlist');
-                        const playlistModal = document.getElementById('playlistModal');
-                        const playlistItems = document.querySelectorAll('.playlist-item');
-                        const randomToggle = document.getElementById('randomToggle');
-                        
-                        playBtn.addEventListener('click', function() {
-                            this.textContent = this.textContent === '▶' ? '⏸' : '▶';
-                        });
-                        
-                        prevBtn.addEventListener('click', function() {
-                            document.querySelector('.title').textContent = 'What is your name';
-                            document.querySelector('.progress-bar').style.width = '15%';
-                            document.querySelector('.time-display span:first-child').textContent = '0:15';
-                        });
-                        
-                        nextBtn.addEventListener('click', function() {
-                            document.querySelector('.title').textContent = 'Good morning – Good evening';
-                            document.querySelector('.progress-bar').style.width = '40%';
-                            document.querySelector('.time-display span:first-child').textContent = '0:40';
-                        });
-                        
-                        playlistBtn.addEventListener('click', function() {
-                            playlistModal.classList.remove('hidden');
-                        });
-                        
-                        document.querySelector('.close-modal').addEventListener('click', function() {
-                            playlistModal.classList.add('hidden');
-                        });
-                        
-                        playlistItems.forEach(item => {
-                            item.addEventListener('click', function() {
-                                playlistItems.forEach(i => i.classList.remove('active'));
-                                this.classList.add('active');
-                                playlistModal.classList.add('hidden');
-                                document.querySelector('.title').textContent = this.textContent;
-                            });
-                        });
-                    });
-                </script>
             `;
             
+            // Вставляем HTML в превью
             document.getElementById('playerPreview').innerHTML = playerHtml;
+            
+            // Настраиваем интерактивность
+            setupPreviewInteractivity();
+        }
+
+        function setupPreviewInteractivity() {
+            // Кнопка Play/Pause
+            document.querySelector('.play').addEventListener('click', function() {
+                if (this.textContent === '▶') {
+                    this.textContent = '⏸';
+                } else {
+                    this.textContent = '▶';
+                }
+            });
+            
+            // Кнопка Previous
+            document.querySelector('.prev').addEventListener('click', function() {
+                document.querySelector('.title').textContent = 'What is your name';
+                document.querySelector('.progress-bar').style.width = '15%';
+                document.querySelector('.time-display span:first-child').textContent = '0:15';
+            });
+            
+            // Кнопка Next
+            document.querySelector('.next').addEventListener('click', function() {
+                document.querySelector('.title').textContent = 'Good morning – Good evening';
+                document.querySelector('.progress-bar').style.width = '40%';
+                document.querySelector('.time-display span:first-child').textContent = '0:40';
+            });
+            
+            // Кнопка Playlist
+            document.querySelector('.playlist').addEventListener('click', function() {
+                document.getElementById('playlistModal').classList.remove('hidden');
+            });
+            
+            // Закрытие модального окна
+            document.querySelector('.close-modal').addEventListener('click', function() {
+                document.getElementById('playlistModal').classList.add('hidden');
+            });
+            
+            // Выбор трека из плейлиста
+            document.querySelectorAll('.playlist-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.playlist-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById('playlistModal').classList.add('hidden');
+                    document.querySelector('.title').textContent = this.textContent;
+                });
+            });
         }
 
         function generateCode() {
@@ -463,6 +464,7 @@
             const secondary = document.getElementById('secondaryColor').value;
             const playlist = document.getElementById('playlistUrl').value;
             
+            // Генерируем embed-код
             const fullCode = `
 <div class="audioplayer" style="--primary-color: ${primary}; --secondary-color: ${secondary};">
     <div class="player-container">
@@ -548,6 +550,7 @@
         let playlist = [];
         let progressInterval;
         
+        // DOM Elements
         const playBtn = document.querySelector('.play');
         const prevBtn = document.querySelector('.prev');
         const nextBtn = document.querySelector('.next');
@@ -586,7 +589,7 @@
                 const item = document.createElement('div');
                 item.className = 'playlist-item';
                 if (index === currentTrack) item.classList.add('active');
-                item.innerHTML = \`\${track.title}\`;
+                item.textContent = track.title;
                 item.addEventListener('click', () => {
                     currentTrack = index;
                     loadTrack(currentTrack);
@@ -602,12 +605,12 @@
         function loadTrack(index) {
             if (playlist.length === 0) return;
             const track = playlist[index];
-            audioElement.src = \`https://raw.githubusercontent.com/EnglishTeacherOlgaKutsepalova/player/main/\${track.file}\`;
+            audioElement.src = 'https://raw.githubusercontent.com/EnglishTeacherOlgaKutsepalova/player/main/' + track.file;
             audioElement.load();
             document.querySelector('.title').textContent = track.title;
             document.querySelector('.artist').textContent = track.artist;
             if (track.image) {
-                document.querySelector('.album-art').src = \`https://raw.githubusercontent.com/EnglishTeacherOlgaKutsepalova/player/main/\${track.image}\`;
+                document.querySelector('.album-art').src = 'https://raw.githubusercontent.com/EnglishTeacherOlgaKutsepalova/player/main/' + track.image;
             }
             document.querySelector('.time-display span:first-child').textContent = '0:00';
             document.querySelector('.time-display span:last-child').textContent = '0:00';
@@ -632,13 +635,13 @@
             const { duration, currentTime } = audioElement;
             if (duration) {
                 const progressPercent = (currentTime / duration) * 100;
-                progressBar.style.width = \`\${progressPercent}%\`;
+                progressBar.style.width = progressPercent + '%';
                 const currentMinutes = Math.floor(currentTime / 60);
                 const currentSeconds = Math.floor(currentTime % 60);
                 const durationMinutes = Math.floor(duration / 60);
                 const durationSeconds = Math.floor(duration % 60);
-                document.querySelector('.time-display span:first-child').textContent = \`\${currentMinutes}:\${currentSeconds < 10 ? '0' : ''}${currentSeconds}\`;
-                document.querySelector('.time-display span:last-child').textContent = \`\${durationMinutes}:\${durationSeconds < 10 ? '0' : ''}${durationSeconds}\`;
+                document.querySelector('.time-display span:first-child').textContent = currentMinutes + ':' + (currentSeconds < 10 ? '0' : '') + currentSeconds;
+                document.querySelector('.time-display span:last-child').textContent = durationMinutes + ':' + (durationSeconds < 10 ? '0' : '') + durationSeconds;
             }
         }
         
@@ -667,7 +670,7 @@
         volumeSlider.addEventListener('click', (e) => {
             const volume = e.offsetX / volumeSlider.clientWidth;
             audioElement.volume = volume;
-            volumeLevel.style.width = \`\${volume * 100}%\`;
+            volumeLevel.style.width = volume * 100 + '%';
         });
         
         playlistBtn.addEventListener('click', () => playlistModal.classList.remove('hidden'));
@@ -684,8 +687,9 @@
 </script>
             `;
             
+            // Вставляем embed-код
             document.getElementById('embedCode').value = fullCode;
-            alert('Embed code ready! Copy it and paste into Genially.');
+            alert('Embed code copied to clipboard! Paste it directly into Genially.');
         }
         
         function closePlaylistModal() {
